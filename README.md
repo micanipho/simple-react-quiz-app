@@ -1,78 +1,135 @@
 # Simple React Quiz App
 
+A minimal, interactive multiple-choice quiz application built with React, Next.js, TypeScript, and styled with Ant Design. This application guides users through a series of questions, tracks their answers, and displays a final score, with options to start and restart the quiz.
+
 ## Table of Contents
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [High-Level Architecture](#high-level-architecture)
-- [Core Entities](#core-entities)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [Implementation Details](#implementation-details)
-- [Future Enhancements](#future-enhancements)
-- [License](#license)
 
----
+*   [Introduction](#introduction)
+*   [Features](#features)
+*   [Technology Stack](#technology-stack)
+*   [Architecture & Design](#architecture--design)
+    *   [Core Components](#core-components)
+    *   [State Management](#state-management)
+    *   [Data Structure](#data-structure)
+    *   [Quiz Logic Flow](#quiz-logic-flow)
+*   [Getting Started](#getting-started)
+    *   [Prerequisites](#prerequisites)
+    *   [Installation](#installation)
+    *   [Running the Application](#running-the-application)
+*   [Project Structure](#project-structure)
+*   [Future Enhancements](#future-enhancements)
+*   [Contributing](#contributing)
+*   [License](#license)
 
-## About the Project
-The "Simple React Quiz App" is a single-page, multiple-choice quiz application built using Next.js, TypeScript, and CSS Modules. Designed for simplicity and ease of use, it allows users to test their knowledge through a series of questions, each with four options. The application progresses through distinct states: a welcoming start screen, an interactive quiz screen displaying one question at a time, and a final score screen summarizing performance. All quiz content is self-contained and hardcoded within the application, ensuring a fully client-side experience with no external dependencies or backend services.
+## Introduction
+
+The "Simple React Quiz App" is designed to provide a straightforward and engaging user experience for taking multiple-choice quizzes. It demonstrates fundamental React concepts, state management, and integration with modern web development tools like Next.js for server-side rendering capabilities (though not heavily utilized for this client-side focused app), TypeScript for robust typing, and Ant Design for a polished UI.
 
 ## Features
-*   **Start Screen:** A welcoming screen with a "Start Quiz" button.
-*   **Quiz Screen:** Displays one question at a time with multiple-choice options.
-*   **Question Display:** Clearly presents the question text.
-*   **Multiple Choice Answers:** Four selectable options for each question.
-*   **Answer Selection:** Users can select one option per question.
-*   **Next Question Navigation:** Seamless transition to the next question after an answer is selected.
-*   **Progress Tracking:** Visual indication of the current question number out of the total (e.g., "Question X of Y").
-*   **Answer Highlighting:** Visual feedback to highlight the currently selected answer.
-*   **Score Display:** Shows the user's final score upon quiz completion.
-*   **Quiz Restart:** A "Restart Quiz" button on the score screen to play again.
 
-## Tech Stack
-*   **Framework:** Next.js (React Framework)
-*   **Language:** TypeScript
-*   **Styling:** CSS Modules
+*   **Start Screen:** A clear entry point with a "Start Quiz" button.
+*   **Question Display:** Presents one multiple-choice question at a time.
+*   **Answer Selection:** Users can select one of four provided options for each question.
+*   **Navigation:** A "Next" button to advance to the subsequent question.
+*   **Score Screen:** Displays the user's final performance upon quiz completion.
+*   **Quiz Restart:** A "Restart" button on the score screen to retake the quiz.
+*   **Responsive UI:** Built with Ant Design for a consistent and adaptive user interface.
 
-## High-Level Architecture
-The application is structured as a single-page application orchestrated primarily by the `pages/index.tsx` component. This main component manages the overall `quizState` (e.g., `'start'`, `'quiz'`, `'score'`) using React's `useState` hook, conditionally rendering the appropriate screen component.
+## Technology Stack
 
-Core components include:
-*   **`StartScreen`**: Displays the initial welcome message and the "Start Quiz" button.
-*   **`QuizScreen`**: Manages the flow of questions. It holds the `currentQuestionIndex` and `userAnswers` state. It renders individual `QuestionCard` components.
-*   **`QuestionCard`**: Responsible for displaying a single question, its options, and handling user selections for that specific question.
-*   **`ScoreScreen`**: Calculates and displays the final score based on `userAnswers` and the hardcoded correct answers. It also provides a "Restart" button.
+*   **Framework:** [Next.js](https://nextjs.org/) (React Framework for production)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/) (Superset of JavaScript with static type checking)
+*   **Styling:** [Ant Design](https://ant.design/) (An enterprise-class UI design language and React UI library)
+*   **State Management:** React's `useState` and `useCallback` hooks for local component state.
+*   **Database:** None (Quiz questions are hardcoded in a local file).
+*   **ORM:** None.
+*   **Authentication:** None.
 
-All quiz data is hardcoded within a dedicated data file, typed with TypeScript interfaces for clarity and maintainability. Styling is handled using CSS Modules, ensuring component-scoped styles and preventing global style collisions.
+## Architecture & Design
 
-## Core Entities
-The application revolves around two primary conceptual entities:
+The application follows a component-based architecture, centralizing state management for the quiz flow and delegating rendering responsibilities to specialized components.
 
-1.  **Question**: Represents a single quiz question.
-    *   `id`: Unique identifier (for React keys).
-    *   `questionText`: The text of the question.
-    *   `options`: An array of strings, representing the multiple-choice options.
-    *   `correctAnswerIndex`: The zero-based index of the correct answer within the `options` array.
+### Core Components
 
-2.  **SelectedAnswer**: While not a distinct object entity in the application's current state, user selections are tracked implicitly.
-    *   The application maintains an array, `userAnswers`, where each element corresponds to the `selectedIndex` (0-3) chosen by the user for the respective question. This array's index directly maps to the `currentQuestionIndex`.
+The application is structured around a few key React components:
+
+*   **`QuizApp` (Container Component):**
+    *   Acts as the main orchestrator, managing the overall quiz state (`currentScreen`, `currentQuestionIndex`, `userAnswers`).
+    *   Fetches and holds the quiz question data.
+    *   Conditionally renders `StartScreen`, `QuestionScreen`, or `ScoreScreen` based on the current application state.
+*   **`StartScreen`:**
+    *   A simple presentational component displaying a welcome message.
+    *   Contains a "Start Quiz" button, which triggers a state change in `QuizApp` to begin the quiz.
+*   **`QuestionScreen`:**
+    *   Receives the current question data and user's selected answer via props.
+    *   Renders the question text and its multiple-choice options using Ant Design's `Radio.Group`.
+    *   Handles answer selection and passes the selected answer back to `QuizApp`.
+    *   Includes a "Next" button to proceed, which is disabled until an answer is selected.
+*   **`ScoreScreen`:**
+    *   Receives the final score and total questions via props.
+    *   Displays the user's performance.
+    *   Features a "Restart Quiz" button to reset the `QuizApp` state.
+
+### State Management
+
+For simplicity and efficiency in this minimal application, state management is primarily handled using React's built-in `useState` and `useCallback` hooks within the top-level `QuizApp` component.
+
+*   **`currentScreen`**: Controls which major UI component (`StartScreen`, `QuestionScreen`, `ScoreScreen`) is currently visible.
+*   **`currentQuestionIndex`**: Tracks the index of the question being displayed from the `questions` array.
+*   **`userAnswers`**: An array storing the selected answer index for each question. `userAnswers[i]` corresponds to the answer for `questions[i]`.
+
+This approach ensures a clear, unidirectional data flow, where the `QuizApp` component is the single source of truth for the quiz's progress.
+
+### Data Structure
+
+The quiz questions are defined using a TypeScript interface to ensure type safety and consistency. The questions themselves are hardcoded within a local data file.
+
+```typescript
+// interfaces/Question.ts
+export interface Question {
+    id: string;
+    questionText: string;
+    options: string[]; // Array of four multiple-choice answer strings
+    correctAnswerIndex: number; // The 0-based index of the correct option within the 'options' array
+}
+
+// data/questions.ts (example)
+import { Question } from '../interfaces/Question';
+
+export const quizQuestions: Question[] = [
+    {
+        id: 'q1',
+        questionText: 'What is the capital of France?',
+        options: ['Berlin', 'Madrid', 'Paris', 'Rome'],
+        correctAnswerIndex: 2, // Paris
+    },
+    // ... more questions
+];
+```
+
+### Quiz Logic Flow
+
+1.  **Start:** User clicks "Start Quiz" on `StartScreen`. `QuizApp` transitions `currentScreen` to 'quiz' and `currentQuestionIndex` to 0.
+2.  **Answering:** `QuestionScreen` displays the question at `currentQuestionIndex`. User selects an option, updating a temporary local state in `QuestionScreen`.
+3.  **Next Question:** User clicks "Next". `QuestionScreen` passes the selected answer up to `QuizApp`, which stores it in `userAnswers` and increments `currentQuestionIndex`.
+4.  **Quiz Completion:** If `currentQuestionIndex` exceeds the number of questions, `QuizApp` calculates the score by comparing `userAnswers` with `questions[i].correctAnswerIndex` and transitions `currentScreen` to 'score'.
+5.  **Score Display:** `ScoreScreen` displays the calculated score.
+6.  **Restart:** User clicks "Restart Quiz". `QuizApp` resets `currentScreen` to 'start', `currentQuestionIndex` to 0, and `userAnswers` to an empty array.
 
 ## Getting Started
 
-Follow these instructions to set up and run the project locally.
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
-Ensure you have Node.js and npm (or Yarn) installed on your machine.
-*   Node.js (LTS version recommended)
-*   npm (comes with Node.js) or Yarn
+
+*   Node.js (LTS version recommended, e.g., 18.x or 20.x)
+*   npm or yarn
 
 ### Installation
+
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/your-username/simple-react-quiz-app.git
     cd simple-react-quiz-app
     ```
 2.  **Install dependencies:**
@@ -83,64 +140,55 @@ Ensure you have Node.js and npm (or Yarn) installed on your machine.
     ```
 
 ### Running the Application
+
 1.  **Start the development server:**
     ```bash
     npm run dev
     # or
     yarn dev
     ```
-2.  Open your browser and navigate to `http://localhost:3000`.
+2.  **Open in browser:**
+    The application will typically be available at `http://localhost:3000`.
 
 ## Project Structure
+
+A high-level overview of the project directory structure:
+
 ```
 simple-react-quiz-app/
-├── public/                # Static assets (not heavily used in this app)
+├── public/                # Static assets (images, fonts, etc.)
 ├── src/
-│   ├── components/        # Reusable UI components
-│   │   ├── StartScreen.tsx
-│   │   ├── QuizScreen.tsx
-│   │   ├── QuestionCard.tsx
-│   │   └── ScoreScreen.tsx
-│   ├── data/              # Hardcoded quiz questions
-│   │   └── quizQuestions.ts
-│   ├── pages/             # Next.js pages (routing)
-│   │   └── index.tsx      # Main application entry point
-│   ├── styles/            # CSS Modules and global styles
-│   │   ├── globals.css
-│   │   ├── App.module.css
-│   │   ├── StartScreen.module.css
-│   │   ├── QuizScreen.module.css
-│   │   ├── QuestionCard.module.css
-│   │   └── ScoreScreen.module.css
-│   └── types/             # TypeScript type definitions
-│       └── quiz.ts
-├── .gitignore
-├── next-env.d.ts
-├── next.config.js
-├── package.json
-├── README.md
-├── tsconfig.json
-└── yarn.lock (or package-lock.json)
+│   ├── components/        # Reusable React components (e.g., QuestionScreen, ScoreScreen)
+│   ├── data/              # Quiz question data (questions.ts)
+│   ├── interfaces/        # TypeScript interfaces (e.g., Question.ts)
+│   ├── pages/             # Next.js pages (e.g., index.tsx for the main app)
+│   ├── styles/            # Global styles or Ant Design overrides
+│   └── util/              # Utility functions (e.g., score calculation)
+├── .gitignore             # Files ignored by Git
+├── next.config.js         # Next.js configuration
+├── package.json           # Project dependencies and scripts
+├── tsconfig.json          # TypeScript configuration
+└── README.md              # Project documentation
 ```
 
-## Implementation Details
-
-*   **State Management:** The primary application state (`quizState`, `currentQuestionIndex`, `userAnswers`) is managed within the `pages/index.tsx` component using React's `useState` hook. This centralized state is passed down to child components as props, and callbacks are passed up for state updates.
-*   **Data Handling:** Quiz questions are defined as an array of `Question` objects in `src/data/quizQuestions.ts`. The `Question` interface is defined in `src/types/quiz.ts` for strong typing.
-*   **User Interface:** The UI is designed to be clean, minimal, and centrally aligned, achieved through CSS Modules. Visual feedback, such as highlighting the selected answer, is implemented by dynamically applying CSS classes based on component state.
-*   **Progress Tracking:** The `QuizScreen` component displays the current question number and total questions (e.g., "Question 3 of 5") to inform the user of their progress.
-*   **Score Calculation:** Upon completing the quiz, the `ScoreScreen` iterates through `userAnswers` and `quizQuestions` to compare selected answers with correct answers, calculating the final score.
-
 ## Future Enhancements
-*   **Dynamic Question Loading:** Fetch quiz questions from an external API or JSON file.
-*   **Multiple Quiz Categories:** Allow users to select different quiz topics.
-*   **Timer Functionality:** Add a countdown timer for each question or the entire quiz.
-*   **Review Answers Screen:** Enable users to review their answers and see correct solutions after completing the quiz.
-*   **Animations and Transitions:** Enhance user experience with subtle UI animations.
-*   **Local Storage Integration:** Persist quiz state or high scores using browser local storage.
-*   **Accessibility Improvements:** Ensure the app is fully accessible to users with disabilities.
+
+*   **Timer:** Add a time limit for each question or the entire quiz.
+*   **Feedback:** Provide immediate feedback on whether an answer was correct or incorrect after selection.
+*   **Question Shuffling:** Randomize the order of questions for replayability.
+*   **Dynamic Question Loading:** Fetch questions from an API instead of hardcoding.
+*   **Different Quiz Modes:** Introduce true/false, fill-in-the-blank, or image-based questions.
+*   **User Profiles/History:** If a backend were introduced, track user scores over time.
+*   **Accessibility Improvements:** Ensure full WCAG compliance.
+
+## Contributing
+
+Contributions are welcome! If you have suggestions for improvements or bug fixes, please open an issue or submit a pull request.
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. (Note: A `LICENSE` file would need to be created in a real project).
 
 ---
+
+**Thank you for checking out the Simple React Quiz App!**
