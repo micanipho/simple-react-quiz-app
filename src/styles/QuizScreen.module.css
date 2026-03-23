@@ -1,0 +1,30 @@
+.quizScreen {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress {
+  font-size: 1.1em;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.nextButton {
+  background-color: #3498db;
+  color: white;
+  padding: 12px 25px;
+  font-size: 1.1em;
+  margin-top: 30px;
+  border-radius: 8px;
+}
+
+.nextButton:hover {
+  background-color: #2980b9;
+}
+
+.nextButton:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
